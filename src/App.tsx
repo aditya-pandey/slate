@@ -10,6 +10,7 @@ import { Sidebar } from './components/Sidebar';
 import { SearchBar } from './components/SearchBar';
 import { PagesPanel } from './components/PagesPanel';
 import { CollectionView } from './components/CollectionView';
+import { SlateMark } from './components/SlateMark';
 import { IconMenu, IconSearch, IconMoon, IconPlus, IconMinus, IconPrint, IconClose } from './components/icons';
 import './styles.css';
 
@@ -85,14 +86,19 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar" ref={topbarRef}>
+        {/* Brand always comes first so its position never shifts between
+            modes — the sidebar toggle only exists for Read/Edit, and having
+            it lead would make the logo jump left/right when switching to
+            Organize/Collection, which don't have a sidebar at all. */}
+        <div className="brand">
+          <SlateMark size={18} />
+          <span>The Slate</span>
+        </div>
         {isViewer && (
           <button className="icon-btn" title="Sidebar" onClick={() => view.setSidebarOpen((v) => !v)}>
             <IconMenu />
           </button>
         )}
-        <div className="brand">
-          <span>The Slate</span>
-        </div>
 
         <div className="segmented">
           <button className={mode === 'read' ? 'on' : ''} onClick={() => setMode('read')}>Read</button>

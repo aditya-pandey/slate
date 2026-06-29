@@ -1,10 +1,22 @@
-// Full-screen empty state + drag-and-drop intake. The first thing a user sees.
+// Full-screen empty state. Drag-and-drop works anywhere on screen (a
+// forgiving target), but clicking only opens the file picker via the
+// explicit "Choose a file" button — not the whole page, which made every
+// click (even on a feature card) accidentally open the OS file dialog.
 
 import { useRef, useState } from 'react';
+import { SlateMark } from './SlateMark';
+import { IconEdit, IconLayers, IconGrid, IconScan, IconFilePdf, IconFileImage, IconLock, IconGithub } from './icons';
 
 interface Props {
   onFiles: (files: FileList | File[]) => void;
 }
+
+const FEATURES = [
+  { icon: IconEdit, label: 'Edit text', caption: 'Edit, adjust, and retype anywhere' },
+  { icon: IconLayers, label: 'Combine', caption: 'Merge multiple PDFs in any order' },
+  { icon: IconGrid, label: 'Organize', caption: 'Reorder, rotate, and delete pages' },
+  { icon: IconScan, label: 'OCR', caption: 'Edit scanned text easily' },
+];
 
 export function Dropzone({ onFiles }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -12,7 +24,7 @@ export function Dropzone({ onFiles }: Props) {
 
   return (
     <div
-      className={`dropzone ${over ? 'over' : ''}`}
+      className={`empty-shell ${over ? 'over' : ''}`}
       onDragOver={(e) => {
         e.preventDefault();
         setOver(true);
@@ -23,14 +35,56 @@ export function Dropzone({ onFiles }: Props) {
         setOver(false);
         onFiles(e.dataTransfer.files);
       }}
-      onClick={() => inputRef.current?.click()}
     >
-      <div className="dropzone-inner">
-        <div className="dropzone-mark">The Slate</div>
-        <h1>Drop a PDF or image here</h1>
-        <p>or click to choose a file. Images become a PDF page automatically.</p>
-        <p className="muted">Everything stays on your device — nothing is uploaded.</p>
+      <header className="empty-topbar">
+        <div className="brand">
+          <SlateMark size={20} />
+          <span>The Slate</span>
+        </div>
+        <a
+          className="icon-btn"
+          title="View source on GitHub"
+          href="https://github.com/aditya-pandey/slate"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <IconGithub size={16} />
+        </a>
+      </header>
+
+      <div className="empty-state">
+        <div className="empty-state-inner">
+          <div className="hero-mark"><SlateMark size={84} variant="gradient" /></div>
+          <h1 className="welcome-h1">Welcome to The Slate</h1>
+          <p className="dropzone-tagline">A fast, private PDF editor that runs entirely on your device.</p>
+
+          <div className="dropzone">
+            <div className="filetype-row">
+              <div className="filetype-icon"><IconFilePdf size={18} /></div>
+              <div className="filetype-icon"><IconFileImage size={18} /></div>
+            </div>
+            <h2>Drop a PDF or image here</h2>
+            <p className="muted">or</p>
+            <button type="button" className="primary upload-btn" onClick={() => inputRef.current?.click()}>
+              Choose a file
+            </button>
+            <p className="dropzone-footnote">
+              <IconLock size={11} /> Your files stay on your device. Nothing is uploaded.
+            </p>
+          </div>
+
+          <div className="feature-row">
+            {FEATURES.map(({ icon: Icon, label, caption }) => (
+              <div className="feature-card" key={label}>
+                <div className="feature-icon"><Icon size={16} /></div>
+                <span className="feature-label">{label}</span>
+                <span className="feature-caption">{caption}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
+
       <input
         ref={inputRef}
         type="file"

@@ -70,7 +70,10 @@ needs one extra click past an OS warning: right-click → Open on Mac,
 ## Privacy
 
 Your PDF files are processed entirely in your browser/app and are never
-uploaded or sent to any server. There is no analytics or tracking of any kind.
+uploaded or sent to any server. The webapp uses
+[Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/) for an
+anonymous visit count — no cookies, no fingerprinting, no personal data, and
+it never sees file contents. The desktop app has no analytics at all.
 
 ## Roadmap
 

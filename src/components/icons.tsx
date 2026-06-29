@@ -131,6 +131,86 @@ export const IconUndo = ({ size }: IconProps) =>
 export const IconChevronUp = ({ size }: IconProps) => base(<path d="M5 12 10 7l5 5" />, size);
 export const IconChevronDown = ({ size }: IconProps) => base(<path d="M5 8l5 5 5-5" />, size);
 
+export const IconFilePdf = ({ size }: IconProps) =>
+  base(
+    <>
+      <path d="M6 3.5h5l3 3v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" />
+      <path d="M11 3.5v3h3" />
+      <line x1="7.2" y1="11.2" x2="12.8" y2="11.2" />
+      <line x1="7.2" y1="13.6" x2="12.8" y2="13.6" />
+    </>,
+    size,
+  );
+
+export const IconFileImage = ({ size }: IconProps) =>
+  base(
+    <>
+      <rect x="3.2" y="4" width="13.6" height="12" rx="1.5" />
+      <circle cx="7.3" cy="8" r="1.2" />
+      <path d="M4 14.8l3.8-3.8 2.7 2.7 2.6-2.6L16.8 14.8" />
+    </>,
+    size,
+  );
+
+export const IconLock = ({ size }: IconProps) =>
+  base(
+    <>
+      <rect x="4.5" y="9" width="11" height="7.5" rx="1.5" />
+      <path d="M7 9V6.5a3 3 0 0 1 6 0V9" />
+    </>,
+    size,
+  );
+
+export const IconGithub = ({ size = 17 }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" aria-hidden="true">
+    <path
+      fill="currentColor"
+      d="M10 1.5a8.5 8.5 0 0 0-2.69 16.57c.43.08.59-.18.59-.41 0-.2-.01-.86-.01-1.56-2.17.4-2.73-.53-2.91-1.01-.1-.25-.52-1.01-.88-1.21-.3-.16-.74-.56-.01-.57.68-.01 1.17.63 1.33.89.78 1.31 2.02.94 2.51.71.08-.56.31-.94.57-1.16-1.98-.22-4.05-.99-4.05-4.39 0-.97.35-1.76.91-2.38-.09-.22-.4-1.13.09-2.35 0 0 .75-.24 2.45.91a8.4 8.4 0 0 1 4.46 0c1.7-1.15 2.45-.91 2.45-.91.49 1.22.18 2.13.09 2.35.56.62.91 1.4.91 2.38 0 3.41-2.08 4.17-4.06 4.39.32.28.6.82.6 1.66 0 1.2-.01 2.16-.01 2.46 0 .23.16.5.59.41A8.5 8.5 0 0 0 10 1.5Z"
+    />
+  </svg>
+);
+
+export const IconEdit = ({ size }: IconProps) =>
+  base(
+    <>
+      <path d="M12.4 4.1 15.9 7.6 6.9 16.6 3 17.5l.9-3.9Z" />
+      <line x1="11" y1="5.5" x2="14.5" y2="9" />
+    </>,
+    size,
+  );
+
+export const IconLayers = ({ size }: IconProps) =>
+  base(
+    <>
+      <rect x="3.5" y="3.5" width="9" height="9" rx="1.5" />
+      <path d="M7.5 16.5h9V7.5" />
+    </>,
+    size,
+  );
+
+export const IconGrid = ({ size }: IconProps) =>
+  base(
+    <>
+      <rect x="3.5" y="3.5" width="5.5" height="5.5" rx="1" />
+      <rect x="11" y="3.5" width="5.5" height="5.5" rx="1" />
+      <rect x="3.5" y="11" width="5.5" height="5.5" rx="1" />
+      <rect x="11" y="11" width="5.5" height="5.5" rx="1" />
+    </>,
+    size,
+  );
+
+export const IconScan = ({ size }: IconProps) =>
+  base(
+    <>
+      <path d="M4 7V5.2A1.2 1.2 0 0 1 5.2 4H7" />
+      <path d="M13 4h1.8A1.2 1.2 0 0 1 16 5.2V7" />
+      <path d="M16 13v1.8a1.2 1.2 0 0 1-1.2 1.2H13" />
+      <path d="M7 16H5.2A1.2 1.2 0 0 1 4 14.8V13" />
+      <line x1="5.5" y1="10" x2="14.5" y2="10" />
+    </>,
+    size,
+  );
+
 export const IconDownload = ({ size }: IconProps) =>
   base(
     <>
