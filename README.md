@@ -63,9 +63,16 @@ npm run desktop:build   # .app/.dmg (mac) or .exe/.msi (windows) for your OS
 Cross-platform installers (Mac + Windows) are built automatically by
 [`.github/workflows/desktop-release.yml`](.github/workflows/desktop-release.yml)
 whenever a tag like `v0.2.0` is pushed — it publishes a GitHub Release with
-both installers attached. These builds are free — ad-hoc signed on Mac (no Apple Developer account),
-unsigned on Windows — so first launch needs one extra step past an OS
-warning: right-click → Open on Mac, "More info → Run anyway" on Windows.
+both installers attached. These builds are free — ad-hoc signed on Mac (no
+Apple Developer account), unsigned on Windows — so first launch needs one
+extra step past an OS warning:
+
+- **Windows:** "More info → Run anyway".
+- **Mac:** recent macOS versions don't offer an "Open Anyway" button on the
+  warning dialog itself. After moving the app to Applications, either:
+  - Terminal (one-time, no more prompts after): `xattr -cr "/Applications/The Slate.app"`
+  - or System Settings → Privacy & Security → "Open Anyway" next to the
+    blocked-app notice → confirm with password/Touch ID.
 
 ## Roadmap
 
