@@ -62,18 +62,10 @@ npm run desktop:build   # .app/.dmg (mac) or .exe/.msi (windows) for your OS
 
 Cross-platform installers (Mac + Windows) are built automatically by
 [`.github/workflows/desktop-release.yml`](.github/workflows/desktop-release.yml)
-whenever a tag like `v0.2.0` is pushed — it opens a draft GitHub Release with
+whenever a tag like `v0.2.0` is pushed — it publishes a GitHub Release with
 both installers attached. These builds are unsigned (free), so first launch
 needs one extra click past an OS warning: right-click → Open on Mac,
 "More info → Run anyway" on Windows.
-
-## Privacy
-
-Your PDF files are processed entirely in your browser/app and are never
-uploaded or sent to any server. The webapp uses
-[Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/) for an
-anonymous visit count — no cookies, no fingerprinting, no personal data, and
-it never sees file contents. The desktop app has no analytics at all.
 
 ## Roadmap
 

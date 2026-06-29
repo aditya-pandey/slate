@@ -5,7 +5,9 @@
 
 import { useRef, useState } from 'react';
 import { SlateMark } from './SlateMark';
-import { IconEdit, IconLayers, IconGrid, IconScan, IconFilePdf, IconFileImage, IconLock, IconGithub } from './icons';
+import {
+  IconEdit, IconLayers, IconGrid, IconScan, IconFilePdf, IconFileImage, IconLock, IconGithub, IconDownload,
+} from './icons';
 
 interface Props {
   onFiles: (files: FileList | File[]) => void;
@@ -18,9 +20,19 @@ const FEATURES = [
   { icon: IconScan, label: 'OCR', caption: 'Edit scanned text easily' },
 ];
 
+const RELEASES_URL = 'https://github.com/aditya-pandey/slate/releases/latest';
+// Asset names carry the version (e.g. "The Slate_0.2.0_x64.dmg"), so there's
+// no permanent direct-download link per OS — send people to the release
+// page itself, where GitHub always shows the right files for the latest tag.
+const DESKTOP_TARGETS = [
+  { label: 'macOS', match: /Mac/ },
+  { label: 'Windows', match: /Win/ },
+];
+
 export function Dropzone({ onFiles }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
+  const platform = navigator.userAgent;
 
   return (
     <div
@@ -81,6 +93,23 @@ export function Dropzone({ onFiles }: Props) {
                 <span className="feature-caption">{caption}</span>
               </div>
             ))}
+          </div>
+
+          <div className="desktop-row">
+            <span className="desktop-row-label">Also available as a desktop app</span>
+            <div className="desktop-row-buttons">
+              {DESKTOP_TARGETS.map(({ label, match }) => (
+                <a
+                  key={label}
+                  className={`desktop-link ${match.test(platform) ? 'on' : ''}`}
+                  href={RELEASES_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <IconDownload size={13} /> {label}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </div>
