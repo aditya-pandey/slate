@@ -94,15 +94,37 @@ function pickStandardFont(style: TextStyle, detectedName: string): StandardFonts
   return StandardFonts.Helvetica;
 }
 
+const IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/jpg']);
+
+/**
+ * Wrap a raster image in a single-page PDF, sized to the image's own pixel
+ * dimensions (96 CSS px/inch -> 72pt/inch is the standard PDF point ratio).
+ * The result is a normal PDFDocument from here on — every other feature
+ * (combine, organize, edit) just works on it without knowing it started life
+ * as an image.
+ */
+async function imageFileToPdfBytes(file: File): Promise<Uint8Array> {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const doc = await PDFDocument.create();
+  const image = file.type === 'image/png' ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
+  const width = image.width * 0.75;
+  const height = image.height * 0.75;
+  const page = doc.addPage([width, height]);
+  page.drawImage(image, { x: 0, y: 0, width, height });
+  return doc.save();
+}
+
 /** Read a File into a SourceDoc + its initial PageRefs (in original order). */
 export async function loadSource(file: File): Promise<{ source: SourceDoc; pages: PageRef[] }> {
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  const isImage = IMAGE_TYPES.has(file.type);
+  const bytes = isImage ? await imageFileToPdfBytes(file) : new Uint8Array(await file.arrayBuffer());
   // pdf-lib parse gives us a reliable page count and validates the file.
   const doc = await PDFDocument.load(bytes, { updateMetadata: false });
   const pageCount = doc.getPageCount();
   const sourceId = uid();
+  const name = isImage ? file.name.replace(/\.\w+$/, '.pdf') : file.name;
 
-  const source: SourceDoc = { id: sourceId, name: file.name, bytes, pageCount };
+  const source: SourceDoc = { id: sourceId, name, bytes, pageCount };
   const pages: PageRef[] = Array.from({ length: pageCount }, (_, i) => ({
     id: uid(),
     sourceId,

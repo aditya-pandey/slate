@@ -142,9 +142,10 @@ export function PageView({
   return (
     <div className={`page-wrap ${dark ? 'night' : ''}`} data-page={index + 1}>
       <canvas ref={canvasRef} className="page-canvas" />
-      {mode === 'edit' && onEdit && onLink && (
-        <TextLayer items={items} pageId={page.id} edits={edits} linkEdits={linkEdits} onEdit={onEdit} onLink={onLink} />
-      )}
+      {/* ObjectLayer renders first so it paints BELOW TextLayer: a full-page
+          background image (common in slide-deck exports) would otherwise sit
+          on top and swallow every click meant for the smaller text runs
+          underneath it, blocking text editing entirely on such pages. */}
       {mode === 'edit' && onDeleteObject && (
         <ObjectLayer
           items={objItems}
@@ -152,6 +153,9 @@ export function PageView({
           onDelete={(item) => onDeleteObject({ id: item.obj.id, pageId: page.id, rect: item.obj.rect, bgColor: sampleBg(item.box) })}
           onRestore={(id) => onRestoreObject?.(id)}
         />
+      )}
+      {mode === 'edit' && onEdit && onLink && (
+        <TextLayer items={items} pageId={page.id} edits={edits} linkEdits={linkEdits} onEdit={onEdit} onLink={onLink} />
       )}
       {mode === 'read' && (
         <ReadTextLayer items={items} matchedRunIds={matchedRunIds ?? new Set()} activeRunId={activeRunId ?? null} />

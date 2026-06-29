@@ -10,6 +10,7 @@ import { Sidebar } from './components/Sidebar';
 import { SearchBar } from './components/SearchBar';
 import { PagesPanel } from './components/PagesPanel';
 import { CollectionView } from './components/CollectionView';
+import { Logo } from './components/Logo';
 import './styles.css';
 
 type Mode = 'read' | 'edit' | 'organize' | 'collection';
@@ -59,14 +60,17 @@ export default function App() {
   }
 
   return (
-    <div className={`app ${view.dark ? 'app-dark' : ''}`}>
+    <div className="app">
       <header className="topbar">
         {isViewer && (
           <button className="icon-btn" title="Sidebar" onClick={() => view.setSidebarOpen((v) => !v)}>
             ☰
           </button>
         )}
-        <div className="brand">The Slate</div>
+        <div className="brand">
+          <Logo size={22} />
+          <span>The Slate</span>
+        </div>
 
         <div className="segmented">
           <button className={mode === 'read' ? 'on' : ''} onClick={() => setMode('read')}>Read</button>
@@ -117,14 +121,18 @@ export default function App() {
           </>
         )}
 
-        <button className="ghost" onClick={() => addInput.current?.click()}>Add PDF</button>
+        <button className="ghost btn-compact" title="Add a PDF or image" onClick={() => addInput.current?.click()}>
+          <span className="btn-icon">＋</span><span className="btn-label">Add</span>
+        </button>
         <button className="icon-btn" title="Print" disabled={busy} onClick={editor.print}>⎙</button>
-        <button className="ghost" onClick={editor.reset}>Close</button>
+        <button className="ghost btn-compact" onClick={editor.reset}>
+          <span className="btn-icon">✕</span><span className="btn-label">Close</span>
+        </button>
         <button className="primary" disabled={busy} onClick={editor.download}>
           {busy ? 'Working…' : 'Download'}
         </button>
         <input
-          ref={addInput} type="file" accept="application/pdf" multiple hidden
+          ref={addInput} type="file" accept="application/pdf,image/png,image/jpeg" multiple hidden
           onChange={(e) => e.target.files && editor.addFiles(e.target.files)}
         />
       </header>

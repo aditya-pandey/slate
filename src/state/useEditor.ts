@@ -14,7 +14,11 @@ export function useEditor() {
   const [busy, setBusy] = useState(false);
 
   const addFiles = useCallback(async (files: FileList | File[]) => {
-    const list = Array.from(files).filter((f) => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
+    // PDFs pass through as-is; PNG/JPEG are wrapped into a one-page PDF by
+    // loadSource. Other image types aren't supported by pdf-lib's embedder.
+    const supportedTypes = new Set(['application/pdf', 'image/png', 'image/jpeg', 'image/jpg']);
+    const acceptable = /\.(pdf|png|jpe?g)$/i;
+    const list = Array.from(files).filter((f) => supportedTypes.has(f.type) || acceptable.test(f.name));
     if (!list.length) return;
     setBusy(true);
     try {

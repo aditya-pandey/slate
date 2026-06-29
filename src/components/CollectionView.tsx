@@ -29,7 +29,7 @@ export function CollectionView({ editor }: { editor: EditorApi }) {
 
   return (
     <div className="collection-view">
-      {sourceIdsInOrder.map((sourceId) => {
+      {sourceIdsInOrder.map((sourceId, docIndex) => {
         const source = doc.sources[sourceId];
         if (!source) return null;
 
@@ -71,6 +71,7 @@ export function CollectionView({ editor }: { editor: EditorApi }) {
               }}
             >
               <div className="doc-drag-handle">☰</div>
+              <span className="doc-index">{String(docIndex + 1).padStart(2, '0')}</span>
               <div className="doc-info">
                 <span className="doc-name">{source.name}</span>
                 <span className="doc-pages-badge">{sourcePages.length} pages</span>
