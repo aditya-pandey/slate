@@ -38,7 +38,7 @@ export function Dropzone({ onFiles }: Props) {
     >
       <header className="empty-topbar">
         <div className="brand">
-          <SlateMark size={20} />
+          <SlateMark size={20} variant="gradient" />
           <span>The Slate</span>
         </div>
         <a

@@ -91,7 +91,7 @@ export default function App() {
             it lead would make the logo jump left/right when switching to
             Organize/Collection, which don't have a sidebar at all. */}
         <div className="brand">
-          <SlateMark size={18} />
+          <SlateMark size={18} variant="gradient" />
           <span>The Slate</span>
         </div>
         {isViewer && (
