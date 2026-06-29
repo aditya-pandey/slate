@@ -50,13 +50,27 @@ npm run dev      # http://localhost:5173
 npm run build    # production build to dist/
 ```
 
+## Desktop app (Mac & Windows)
+
+The same code runs as a native desktop app via [Tauri](https://tauri.app) —
+no rewrite, just a native window around the same `dist/` build.
+
+```bash
+npm run desktop:dev     # native window, hot-reloading
+npm run desktop:build   # .app/.dmg (mac) or .exe/.msi (windows) for your OS
+```
+
+Cross-platform installers (Mac + Windows) are built automatically by
+[`.github/workflows/desktop-release.yml`](.github/workflows/desktop-release.yml)
+whenever a tag like `v0.2.0` is pushed — it opens a draft GitHub Release with
+both installers attached. These builds are unsigned (free), so first launch
+needs one extra click past an OS warning: right-click → Open on Mac,
+"More info → Run anyway" on Windows.
+
 ## Privacy
 
-Your PDF files are processed entirely in your browser and are never uploaded
-or sent to any server. The site uses [Microsoft Clarity](https://clarity.microsoft.com/)
-for anonymous, aggregate usage analytics (page interactions only — never file
-contents) to help improve the product. You can block this with any tracker
-blocker without affecting functionality.
+Your PDF files are processed entirely in your browser/app and are never
+uploaded or sent to any server. There is no analytics or tracking of any kind.
 
 ## Roadmap
 
@@ -66,9 +80,9 @@ blocker without affecting functionality.
 - [x] Link view/edit/add/remove
 - [x] Delete text & image objects
 - [x] OCR for scanned/image-only pages
+- [x] Desktop build (Tauri) for Mac & Windows
 - [ ] Embed real TTF/OTF fonts for exact font matching
 - [ ] Paragraph reflow for length-changing edits
-- [ ] Desktop build (Tauri)
 
 ## License
 
