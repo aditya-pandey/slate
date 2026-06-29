@@ -3,6 +3,7 @@
 // canvas underneath already shows them removed).
 
 import type { PageObject } from '../core/objects';
+import { IconClose, IconUndo } from './icons';
 
 export interface ObjItem {
   obj: PageObject;
@@ -27,15 +28,15 @@ export function ObjectLayer({ items, deletedIds, onDelete, onRestore }: Props) {
           return (
             <div key={obj.id} className="obj deleted" style={style}>
               <button className="obj-undo" title="Restore image" onClick={() => onRestore(obj.id)}>
-                ↩ Undo
+                <IconUndo size={13} /> Undo
               </button>
             </div>
           );
         }
         return (
-          <div key={obj.id} className="obj" style={style} title="Image — click ✕ to delete">
+          <div key={obj.id} className="obj" style={style} title="Image — click to delete">
             <button className="obj-del" title="Delete image" onClick={() => onDelete(item)}>
-              ✕
+              <IconClose size={11} />
             </button>
           </div>
         );

@@ -10,7 +10,7 @@ import { Sidebar } from './components/Sidebar';
 import { SearchBar } from './components/SearchBar';
 import { PagesPanel } from './components/PagesPanel';
 import { CollectionView } from './components/CollectionView';
-import { Logo } from './components/Logo';
+import { IconMenu, IconSearch, IconMoon, IconPlus, IconMinus, IconPrint, IconClose } from './components/icons';
 import './styles.css';
 
 type Mode = 'read' | 'edit' | 'organize' | 'collection';
@@ -21,7 +21,30 @@ export default function App() {
   const { doc, isEmpty, busy } = editor;
   const [mode, setMode] = useState<Mode>('read');
   const addInput = useRef<HTMLInputElement>(null);
+  const topbarRef = useRef<HTMLElement>(null);
   const isViewer = mode === 'read' || mode === 'edit';
+
+  // The topbar wraps to a different number of rows depending on mode (Read/
+  // Edit show extra controls) and screen width — there's no fixed height to
+  // guess. Measure it for real and feed the value back as --bar-clear, which
+  // every scroller pads/insets by so content always clears the bar exactly,
+  // on any screen size, in any mode.
+  useEffect(() => {
+    const el = topbarRef.current;
+    if (!el) return;
+    const update = () => {
+      const h = el.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--bar-clear', `${Math.ceil(h + 24)}px`);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, [mode, isViewer]);
 
   // Keyboard navigation + ⌘F. Ignored while typing in a field.
   useEffect(() => {
@@ -61,14 +84,13 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="topbar">
+      <header className="topbar" ref={topbarRef}>
         {isViewer && (
           <button className="icon-btn" title="Sidebar" onClick={() => view.setSidebarOpen((v) => !v)}>
-            ☰
+            <IconMenu />
           </button>
         )}
         <div className="brand">
-          <Logo size={22} />
           <span>The Slate</span>
         </div>
 
@@ -82,7 +104,7 @@ export default function App() {
         <div className="spacer" />
 
         {isViewer && (
-          <>
+          <div className="viewer-controls">
             <div className="pagebox">
               <input
                 key={view.currentPage}
@@ -99,9 +121,9 @@ export default function App() {
             </div>
 
             <div className="zoom">
-              <button onClick={() => view.zoomBy(1 / 1.1)}>−</button>
+              <button onClick={() => view.zoomBy(1 / 1.1)}><IconMinus size={13} /></button>
               <span>{Math.round(view.scale * 100)}%</span>
-              <button onClick={() => view.zoomBy(1.1)}>＋</button>
+              <button onClick={() => view.zoomBy(1.1)}><IconPlus size={13} /></button>
             </div>
             <select className="fit-select" value={view.fit} onChange={(e) => view.applyFit(e.target.value as any)}>
               <option value="custom">Custom</option>
@@ -110,23 +132,23 @@ export default function App() {
               <option value="actual">100%</option>
             </select>
 
-            <button className="icon-btn" title="Find (⌘F)" onClick={() => view.setSearchOpen(true)}>🔍</button>
+            <button className="icon-btn" title="Find (⌘F)" onClick={() => view.setSearchOpen(true)}><IconSearch /></button>
             <button
               className={`icon-btn ${view.dark ? 'on' : ''}`}
               title="Night mode"
               onClick={() => view.setDark((v) => !v)}
             >
-              ☾
+              <IconMoon />
             </button>
-          </>
+          </div>
         )}
 
         <button className="ghost btn-compact" title="Add a PDF or image" onClick={() => addInput.current?.click()}>
-          <span className="btn-icon">＋</span><span className="btn-label">Add</span>
+          <span className="btn-icon"><IconPlus size={13} /></span><span className="btn-label">Add</span>
         </button>
-        <button className="icon-btn" title="Print" disabled={busy} onClick={editor.print}>⎙</button>
+        <button className="icon-btn" title="Print" disabled={busy} onClick={editor.print}><IconPrint /></button>
         <button className="ghost btn-compact" onClick={editor.reset}>
-          <span className="btn-icon">✕</span><span className="btn-label">Close</span>
+          <span className="btn-icon"><IconClose size={13} /></span><span className="btn-label">Close</span>
         </button>
         <button className="primary" disabled={busy} onClick={editor.download}>
           {busy ? 'Working…' : 'Download'}

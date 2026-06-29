@@ -135,11 +135,12 @@ export async function loadSource(file: File): Promise<{ source: SourceDoc; pages
 }
 
 /**
- * Build the final PDF from the working document: walk the ordered page list,
- * copy each referenced page from its source, apply added rotation. Runs fully
- * client-side. Returns bytes ready to download.
+ * Build a PDF from a chosen subset (and order) of a working document's pages:
+ * copy each referenced page from its source, apply edits + added rotation.
+ * Runs fully client-side. Shared by the whole-document export and the
+ * per-document export on the Collection page.
  */
-export async function exportPdf(doc: EditorDoc): Promise<Uint8Array> {
+export async function exportPages(doc: EditorDoc, pages: PageRef[]): Promise<Uint8Array> {
   const out = await PDFDocument.create();
 
   // Load each source once, lazily.
@@ -156,7 +157,7 @@ export async function exportPdf(doc: EditorDoc): Promise<Uint8Array> {
   const byPage = groupEdits(doc);
   const embedFont = makeFontEmbedder(out);
 
-  for (const ref of doc.pages) {
+  for (const ref of pages) {
     const src = doc.sources[ref.sourceId];
     if (!src) continue;
     const srcDoc = await loadSrc(src);
@@ -172,6 +173,37 @@ export async function exportPdf(doc: EditorDoc): Promise<Uint8Array> {
   }
 
   return out.save();
+}
+
+/** Build the final PDF from every page in the working document, in order. */
+export function exportPdf(doc: EditorDoc): Promise<Uint8Array> {
+  return exportPages(doc, doc.pages);
+}
+
+/** Build just one source document's pages (Collection page's per-document download). */
+export function exportSource(doc: EditorDoc, sourceId: string): Promise<Uint8Array> {
+  return exportPages(doc, doc.pages.filter((p) => p.sourceId === sourceId));
+}
+
+/**
+ * Build a .zip of every document in the collection, each as its own PDF
+ * (edits/reorders/rotations applied), named after its original file.
+ */
+export async function exportCollectionZip(doc: EditorDoc, sourceIdsInOrder: string[]): Promise<Uint8Array> {
+  const JSZip = (await import('jszip')).default;
+  const zip = new JSZip();
+  const usedNames = new Set<string>();
+  for (const sourceId of sourceIdsInOrder) {
+    const src = doc.sources[sourceId];
+    const pages = doc.pages.filter((p) => p.sourceId === sourceId);
+    if (!src || !pages.length) continue;
+    const bytes = await exportPages(doc, pages);
+    let name = src.name.endsWith('.pdf') ? src.name : `${src.name}.pdf`;
+    while (usedNames.has(name)) name = name.replace(/\.pdf$/, '-copy.pdf');
+    usedNames.add(name);
+    zip.file(name, bytes);
+  }
+  return zip.generateAsync({ type: 'uint8array' });
 }
 
 export interface PageEditSet {
@@ -263,8 +295,8 @@ export async function applyPageEdits(
 }
 
 /** Trigger a browser download for exported bytes. */
-export function downloadBytes(bytes: Uint8Array, filename: string): void {
-  const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' });
+export function downloadBytes(bytes: Uint8Array, filename: string, mimeType = 'application/pdf'): void {
+  const blob = new Blob([bytes as BlobPart], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

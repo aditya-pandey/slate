@@ -8,6 +8,7 @@ import type { PdfRun, CssBox } from '../core/text';
 import { runRect } from '../core/text';
 import type { FontFamily, LinkEdit, TextEdit, TextStyle } from '../core/types';
 import { FormatToolbar } from './FormatToolbar';
+import { IconLink } from './icons';
 
 export interface RunItem {
   run: PdfRun;
@@ -131,6 +132,22 @@ export function TextLayer({ items, pageId, edits, linkEdits, onEdit, onLink }: P
     return () => document.removeEventListener('mousedown', onDown);
   }, [editingId, commit]);
 
+  // The toolbar positions itself relative to the clicked word, which can sit
+  // anywhere on the page — including right at a narrow phone's edge. Nudge it
+  // back fully on-screen after it renders, instead of letting it clip off.
+  useEffect(() => {
+    if (!editingId) return;
+    const toolbar = wrapRef.current?.querySelector<HTMLElement>('.fmt-toolbar');
+    if (!toolbar) return;
+    toolbar.style.transform = '';
+    const rect = toolbar.getBoundingClientRect();
+    const margin = 8;
+    let shift = 0;
+    if (rect.right > window.innerWidth - margin) shift = window.innerWidth - margin - rect.right;
+    if (rect.left + shift < margin) shift = margin - rect.left;
+    if (shift) toolbar.style.transform = `translateX(${shift}px)`;
+  }, [editingId]);
+
   const open = (item: RunItem) => {
     const prior = edits[item.run.id];
     setDraft(prior ? prior.newText : item.run.str);
@@ -195,7 +212,7 @@ export function TextLayer({ items, pageId, edits, linkEdits, onEdit, onLink }: P
             title={effectiveLink ? `🔗 ${effectiveLink} — click to edit` : `${run.fontName} · ${Math.round(run.fontSize)}px — click to edit`}
             onClick={() => open({ run, box })}
           >
-            {effectiveLink ? <span className="run-link-badge">🔗</span> : null}
+            {effectiveLink ? <span className="run-link-badge"><IconLink size={9} /></span> : null}
           </div>
         );
       })}

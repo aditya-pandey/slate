@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import type { FontFamily, TextStyle } from '../core/types';
+import { IconMinus, IconPlus, IconLink, IconTrash, IconClose } from './icons';
 
 interface Props {
   style: TextStyle;
@@ -41,11 +42,11 @@ export function FormatToolbar({ style, onChange, link, onLink, onDelete }: Props
 
       <div className="fmt-size">
         <button onMouseDown={stop} onClick={() => onChange({ fontSize: Math.max(4, style.fontSize - 1) })}>
-          −
+          <IconMinus size={12} />
         </button>
         <span>{Math.round(style.fontSize)}</span>
         <button onMouseDown={stop} onClick={() => onChange({ fontSize: Math.min(200, style.fontSize + 1) })}>
-          ＋
+          <IconPlus size={12} />
         </button>
       </div>
 
@@ -87,11 +88,11 @@ export function FormatToolbar({ style, onChange, link, onLink, onDelete }: Props
         onMouseDown={stop}
         onClick={() => setLinkOpen((v) => !v)}
       >
-        🔗
+        <IconLink size={13} />
       </button>
 
       <button className="fmt-btn fmt-del" title="Delete text" onMouseDown={stop} onClick={onDelete}>
-        🗑
+        <IconTrash size={13} />
       </button>
 
       {linkOpen && (
@@ -105,7 +106,7 @@ export function FormatToolbar({ style, onChange, link, onLink, onDelete }: Props
           />
           {link && (
             <button className="fmt-link-clear" title="Remove link" onMouseDown={stop} onClick={() => onLink('')}>
-              ✕
+              <IconClose size={11} />
             </button>
           )}
         </div>

@@ -16,6 +16,7 @@ import { hasOcr, ocrPage } from '../core/ocr';
 import { TextLayer, type RunItem } from './TextLayer';
 import { ReadTextLayer } from './ReadTextLayer';
 import { ObjectLayer, type ObjItem } from './ObjectLayer';
+import { IconSearch } from './icons';
 
 type Mode = 'plain' | 'read' | 'edit';
 
@@ -162,7 +163,7 @@ export function PageView({
       )}
       {mode === 'plain' && <span className="page-num">{index + 1}</span>}
 
-      {needsOcr && <button className="ocr-cta" onClick={recognize}>🔍 Recognize text (OCR)</button>}
+      {needsOcr && <button className="ocr-cta" onClick={recognize}><IconSearch size={13} /> Recognize text (OCR)</button>}
       {ocrBusy && <div className="ocr-busy">Recognizing text…</div>}
     </div>
   );

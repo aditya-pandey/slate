@@ -1,10 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { EditorApi } from '../state/useEditor';
 import { PageView } from './PageView';
+import { getPdfjsDoc } from '../core/render';
+import { getPageSize, type Size } from '../core/sizes';
+import { IconGrip, IconClose, IconRotateCcw, IconRotateCw, IconTrash, IconDownload, IconArchive } from './icons';
+
+// .collection-thumb-wrapper has no extra padding of its own — the canvas IS
+// the content height, so this just leaves headroom for varying page sizes
+// while keeping every thumbnail in a row the same height (not the same
+// fixed scale, which makes portrait and landscape pages wildly different
+// sizes side by side).
+const TARGET_THUMB_HEIGHT = 170;
+const FALLBACK_SCALE = 0.24;
 
 export function CollectionView({ editor }: { editor: EditorApi }) {
-  const { doc, movePage, moveDocument, deletePage, deleteDocument, rotatePage } = editor;
-  
+  const { doc, movePage, moveDocument, deletePage, deleteDocument, rotatePage, downloadSource, downloadAllZip, busy } = editor;
+  const [sizes, setSizes] = useState<Record<string, Size>>({});
+
   // States for page dragging
   const [dragPageIndex, setDragPageIndex] = useState<number | null>(null);
   const [overPageIndex, setOverPageIndex] = useState<number | null>(null);
@@ -27,8 +39,36 @@ export function CollectionView({ editor }: { editor: EditorApi }) {
     }
   });
 
+  // Native page size per page, so each strip thumbnail can be scaled to a
+  // consistent HEIGHT (matching how a real film-strip/contact-sheet reads) —
+  // a flat scale renders portrait and landscape pages at very different
+  // heights side by side, which looks unintentional.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const next: Record<string, Size> = {};
+      for (const p of doc.pages) {
+        const src = doc.sources[p.sourceId];
+        if (!src) continue;
+        const pdf = await getPdfjsDoc(src.id, src.bytes);
+        if (cancelled) return;
+        next[p.id] = await getPageSize(pdf, src.id, p.pageIndex, p.rotation);
+      }
+      if (!cancelled) setSizes(next);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [doc.pages, doc.sources]);
+
   return (
     <div className="collection-view">
+      <div className="collection-toolbar">
+        <span className="muted">{sourceIdsInOrder.filter((id) => doc.sources[id]).length} document(s)</span>
+        <button className="ghost btn-compact" disabled={busy} onClick={() => downloadAllZip(sourceIdsInOrder)}>
+          <span className="btn-icon"><IconArchive size={13} /></span><span className="btn-label">Download all (.zip)</span>
+        </button>
+      </div>
       {sourceIdsInOrder.map((sourceId, docIndex) => {
         const source = doc.sources[sourceId];
         if (!source) return null;
@@ -70,18 +110,26 @@ export function CollectionView({ editor }: { editor: EditorApi }) {
                 setOverSourceId(null);
               }}
             >
-              <div className="doc-drag-handle">☰</div>
+              <div className="doc-drag-handle"><IconGrip size={15} /></div>
               <span className="doc-index">{String(docIndex + 1).padStart(2, '0')}</span>
               <div className="doc-info">
                 <span className="doc-name">{source.name}</span>
                 <span className="doc-pages-badge">{sourcePages.length} pages</span>
               </div>
               <button
-                className="doc-delete-btn"
-                title="Remove document"
-                onClick={() => deleteDocument(sourceId)}
+                className="doc-icon-btn"
+                title="Download this document"
+                disabled={busy || sourcePages.length === 0}
+                onClick={(e) => { e.stopPropagation(); downloadSource(sourceId); }}
               >
-                ✕
+                <IconDownload size={14} />
+              </button>
+              <button
+                className="doc-icon-btn doc-delete-btn"
+                title="Remove document"
+                onClick={(e) => { e.stopPropagation(); deleteDocument(sourceId); }}
+              >
+                <IconClose size={13} />
               </button>
             </div>
 
@@ -90,7 +138,10 @@ export function CollectionView({ editor }: { editor: EditorApi }) {
                 <div className="empty-strip-message">No pages remaining in this document.</div>
               ) : (
                 <div className="page-strip-inner">
-                  {sourcePages.map(({ p: page, idx: globalIndex }) => (
+                  {sourcePages.map(({ p: page, idx: globalIndex }) => {
+                    const size = sizes[page.id];
+                    const scale = size ? TARGET_THUMB_HEIGHT / size.height : FALLBACK_SCALE;
+                    return (
                     <div
                       key={page.id}
                       className={`collection-thumb ${
@@ -123,16 +174,17 @@ export function CollectionView({ editor }: { editor: EditorApi }) {
                       }}
                     >
                       <div className="collection-thumb-wrapper">
-                        <PageView page={page} source={source} scale={0.24} index={globalIndex} />
+                        <PageView page={page} source={source} scale={scale} index={globalIndex} />
                       </div>
                       <div className="thumb-tools">
-                        <button title="Rotate left" onClick={() => rotatePage(page.id, -1)}>⟲</button>
-                        <button title="Rotate right" onClick={() => rotatePage(page.id, 1)}>⟳</button>
-                        <button title="Delete page" className="danger" onClick={() => deletePage(page.id)}>✕</button>
+                        <button title="Rotate left" onClick={() => rotatePage(page.id, -1)}><IconRotateCcw size={13} /></button>
+                        <button title="Rotate right" onClick={() => rotatePage(page.id, 1)}><IconRotateCw size={13} /></button>
+                        <button title="Delete page" className="danger" onClick={() => deletePage(page.id)}><IconTrash size={13} /></button>
                       </div>
                       <div className="collection-page-number">{globalIndex + 1}</div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

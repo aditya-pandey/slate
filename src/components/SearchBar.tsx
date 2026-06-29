@@ -3,6 +3,7 @@
 
 import { useEffect, useRef } from 'react';
 import type { ViewerApi } from '../state/useViewer';
+import { IconChevronUp, IconChevronDown, IconClose } from './icons';
 
 export function SearchBar({ view }: { view: ViewerApi }) {
   const { query, setQuery, matches, activeMatch, goToMatch, setSearchOpen } = view;
@@ -28,13 +29,13 @@ export function SearchBar({ view }: { view: ViewerApi }) {
       />
       <span className="search-count">{query ? `${matches.length ? activeMatch + 1 : 0} / ${matches.length}` : ''}</span>
       <button title="Previous (⇧⏎)" disabled={!matches.length} onClick={() => goToMatch(activeMatch - 1)}>
-        ↑
+        <IconChevronUp size={14} />
       </button>
       <button title="Next (⏎)" disabled={!matches.length} onClick={() => goToMatch(activeMatch + 1)}>
-        ↓
+        <IconChevronDown size={14} />
       </button>
       <button title="Close (Esc)" onClick={() => setSearchOpen(false)}>
-        ✕
+        <IconClose size={13} />
       </button>
     </div>
   );

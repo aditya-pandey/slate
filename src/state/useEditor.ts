@@ -4,7 +4,7 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import type { EditorDoc, LinkEdit, ObjectDelete, PageRef, TextEdit } from '../core/types';
-import { loadSource, exportPdf, downloadBytes } from '../core/document';
+import { loadSource, exportPdf, exportSource, exportCollectionZip, downloadBytes } from '../core/document';
 import { forgetPdfjsDoc } from '../core/render';
 
 const EMPTY: EditorDoc = { sources: {}, pages: [], edits: {}, linkEdits: {}, objectDeletes: {} };
@@ -143,6 +143,31 @@ export function useEditor() {
     }
   }, [doc]);
 
+  /** Collection page: download just one document (its pages, with edits/reorders applied). */
+  const downloadSource = useCallback(async (sourceId: string) => {
+    const src = doc.sources[sourceId];
+    if (!src) return;
+    setBusy(true);
+    try {
+      const bytes = await exportSource(doc, sourceId);
+      downloadBytes(bytes, src.name.endsWith('.pdf') ? src.name : `${src.name}.pdf`);
+    } finally {
+      setBusy(false);
+    }
+  }, [doc]);
+
+  /** Collection page: download every document as its own PDF, bundled in one .zip. */
+  const downloadAllZip = useCallback(async (sourceIdsInOrder: string[]) => {
+    if (!sourceIdsInOrder.length) return;
+    setBusy(true);
+    try {
+      const bytes = await exportCollectionZip(doc, sourceIdsInOrder);
+      downloadBytes(bytes, 'documents.zip', 'application/zip');
+    } finally {
+      setBusy(false);
+    }
+  }, [doc]);
+
   /** Print the assembled PDF via a hidden iframe (with edits applied). */
   const print = useCallback(async () => {
     if (!doc.pages.length) return;
@@ -169,8 +194,12 @@ export function useEditor() {
 
   const isEmpty = doc.pages.length === 0;
   const api = useMemo(
-    () => ({ doc, busy, isEmpty, addFiles, editRun, editLink, deleteObject, restoreObject, movePage, moveDocument, deletePage, deleteDocument, rotatePage, reset, download, print }),
-    [doc, busy, isEmpty, addFiles, editRun, editLink, deleteObject, restoreObject, movePage, moveDocument, deletePage, deleteDocument, rotatePage, reset, download, print],
+    () => ({
+      doc, busy, isEmpty, addFiles, editRun, editLink, deleteObject, restoreObject, movePage, moveDocument,
+      deletePage, deleteDocument, rotatePage, reset, download, downloadSource, downloadAllZip, print,
+    }),
+    [doc, busy, isEmpty, addFiles, editRun, editLink, deleteObject, restoreObject, movePage, moveDocument,
+      deletePage, deleteDocument, rotatePage, reset, download, downloadSource, downloadAllZip, print],
   );
   return api;
 }
