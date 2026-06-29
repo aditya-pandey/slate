@@ -78,7 +78,7 @@ export function PageView({
         return;
       }
       const pdfPage = await pdf.getPage(page.pageIndex + 1);
-      const rotation = (pdfPage.rotate + page.rotation) % 360;
+      const rotation = (((pdfPage.rotate || 0) + page.rotation) % 360 + 360) % 360;
       const viewport = pdfPage.getViewport({ scale, rotation });
       const runs = await extractRuns(pdf, source.id, page.pageIndex);
       if (cancelled) return;

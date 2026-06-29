@@ -21,7 +21,7 @@ export async function getPageSize(
   if (hit) return hit;
 
   const page = await doc.getPage(pageIndex + 1);
-  const rotation = (page.rotate + extraRotation) % 360;
+  const rotation = (((page.rotate || 0) + extraRotation) % 360 + 360) % 360;
   const vp = page.getViewport({ scale: 1, rotation });
   const size: Size = { width: vp.width, height: vp.height };
   cache.set(key, size);

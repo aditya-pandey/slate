@@ -66,7 +66,7 @@ export async function renderPage(
 ): Promise<RenderResult> {
   const page = await doc.getPage(pageIndex + 1); // pdf.js is 1-based
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const rotation = (page.rotate + extraRotation) % 360;
+  const rotation = (((page.rotate || 0) + extraRotation) % 360 + 360) % 360;
   const viewport = page.getViewport({ scale: scale * dpr, rotation });
 
   const ctx = canvas.getContext('2d');

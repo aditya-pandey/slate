@@ -1,7 +1,7 @@
 {
-  "name": "pdf-editor",
+  "name": "slate",
   "version": "0.1.0",
-  "description": "A fast, private, open-source PDF editor that runs entirely in the browser.",
+  "description": "The Slate — a fast, open-source PDF editor that runs entirely in the browser.",
   "license": "MIT",
   "type": "module",
   "scripts": {

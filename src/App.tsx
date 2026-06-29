@@ -9,9 +9,10 @@ import { Viewer } from './components/Viewer';
 import { Sidebar } from './components/Sidebar';
 import { SearchBar } from './components/SearchBar';
 import { PagesPanel } from './components/PagesPanel';
+import { CollectionView } from './components/CollectionView';
 import './styles.css';
 
-type Mode = 'read' | 'edit' | 'organize';
+type Mode = 'read' | 'edit' | 'organize' | 'collection';
 
 export default function App() {
   const editor = useEditor();
@@ -65,12 +66,13 @@ export default function App() {
             ☰
           </button>
         )}
-        <div className="brand">PDF Editor</div>
+        <div className="brand">The Slate</div>
 
         <div className="segmented">
           <button className={mode === 'read' ? 'on' : ''} onClick={() => setMode('read')}>Read</button>
           <button className={mode === 'edit' ? 'on' : ''} onClick={() => setMode('edit')}>Edit text</button>
           <button className={mode === 'organize' ? 'on' : ''} onClick={() => setMode('organize')}>Organize</button>
+          <button className={mode === 'collection' ? 'on' : ''} onClick={() => setMode('collection')}>Collection</button>
         </div>
 
         <div className="spacer" />
@@ -133,6 +135,8 @@ export default function App() {
         <main className="stage" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (e.dataTransfer.files.length) editor.addFiles(e.dataTransfer.files); }}>
           {mode === 'organize' ? (
             <PagesPanel editor={editor} />
+          ) : mode === 'collection' ? (
+            <CollectionView editor={editor} />
           ) : (
             <>
               <Viewer editor={editor} view={view} mode={mode} />

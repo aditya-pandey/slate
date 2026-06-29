@@ -99,7 +99,7 @@ export async function ocrPage(
   if (hit) return hit;
 
   const page = await doc.getPage(pageIndex + 1);
-  const rotation = page.rotate % 360;
+  const rotation = (((page.rotate || 0) % 360 + 360) % 360);
   const base = page.getViewport({ scale: 1, rotation });
   const pageH = base.height;
 

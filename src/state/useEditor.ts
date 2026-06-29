@@ -74,12 +74,41 @@ export function useEditor() {
     });
   }, []);
 
+  const moveDocument = useCallback((fromSourceId: string, toSourceId: string) => {
+    setDoc((d) => {
+      const fromPages = d.pages.filter((p) => p.sourceId === fromSourceId);
+      const otherPages = d.pages.filter((p) => p.sourceId !== fromSourceId);
+      const targetIndex = otherPages.findIndex((p) => p.sourceId === toSourceId);
+      if (targetIndex === -1) {
+        // If target not found (e.g. no pages left for target), append to end
+        return { ...d, pages: [...otherPages, ...fromPages] };
+      }
+      const newPages = [...otherPages];
+      newPages.splice(targetIndex, 0, ...fromPages);
+      return { ...d, pages: newPages };
+    });
+  }, []);
+
   const deletePage = useCallback((id: string) => {
     setDoc((d) => {
       const edits = Object.fromEntries(Object.entries(d.edits).filter(([, e]) => e.pageId !== id));
       const linkEdits = Object.fromEntries(Object.entries(d.linkEdits).filter(([, e]) => e.pageId !== id));
       const objectDeletes = Object.fromEntries(Object.entries(d.objectDeletes).filter(([, e]) => e.pageId !== id));
       return { ...d, pages: d.pages.filter((p) => p.id !== id), edits, linkEdits, objectDeletes };
+    });
+  }, []);
+
+  const deleteDocument = useCallback((sourceId: string) => {
+    setDoc((d) => {
+      const sources = { ...d.sources };
+      delete sources[sourceId];
+      const pages = d.pages.filter((p) => p.sourceId !== sourceId);
+      const pageIds = new Set(pages.map((p) => p.id));
+      const edits = Object.fromEntries(Object.entries(d.edits).filter(([, e]) => pageIds.has(e.pageId)));
+      const linkEdits = Object.fromEntries(Object.entries(d.linkEdits).filter(([, e]) => pageIds.has(e.pageId)));
+      const objectDeletes = Object.fromEntries(Object.entries(d.objectDeletes).filter(([, e]) => pageIds.has(e.pageId)));
+      forgetPdfjsDoc(sourceId);
+      return { ...d, sources, pages, edits, linkEdits, objectDeletes };
     });
   }, []);
 
@@ -136,8 +165,8 @@ export function useEditor() {
 
   const isEmpty = doc.pages.length === 0;
   const api = useMemo(
-    () => ({ doc, busy, isEmpty, addFiles, editRun, editLink, deleteObject, restoreObject, movePage, deletePage, rotatePage, reset, download, print }),
-    [doc, busy, isEmpty, addFiles, editRun, editLink, deleteObject, restoreObject, movePage, deletePage, rotatePage, reset, download, print],
+    () => ({ doc, busy, isEmpty, addFiles, editRun, editLink, deleteObject, restoreObject, movePage, moveDocument, deletePage, deleteDocument, rotatePage, reset, download, print }),
+    [doc, busy, isEmpty, addFiles, editRun, editLink, deleteObject, restoreObject, movePage, moveDocument, deletePage, deleteDocument, rotatePage, reset, download, print],
   );
   return api;
 }
